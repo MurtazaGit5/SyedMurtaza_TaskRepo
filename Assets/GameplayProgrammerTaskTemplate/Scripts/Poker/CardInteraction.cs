@@ -16,14 +16,16 @@ public class TexasHoldemInteractionManager
     public CardHand[] m_cardHand;
     public CardTable m_cardTable;
     private Deck m_deck;
+    private CardDataObject m_cardData;
 
-    public TexasHoldemInteractionManager(Deck deck, int playerNum)
+    public TexasHoldemInteractionManager(Deck deck, CardDataObject cardData, int playerNum)
     {
         m_deck = deck;
+        m_cardData = cardData;
         m_cardHand = new CardHand[playerNum];
         m_cardTable = new CardTable(k_tableTotalCards);
     }
-    
+
     public void DealHand()
     {
         for (int i = 0; i < m_cardHand.Length; i++)
@@ -31,25 +33,25 @@ public class TexasHoldemInteractionManager
             m_cardHand[i] = m_deck.DrawHand(k_cardsInHand);
         }
     }
-    
+
     public void DealFlop()
     {
         for (int i = 0; i < k_flopSize; i++)
         {
-            Card newCard = m_deck.DrawCard();
-            m_cardTable.AddCard(newCard); 
+            Card newCard = DrawCardWithSpecials();
+            m_cardTable.AddCard(newCard);
         }
     }
-    
+
     public void DealTurn()
     {
-        Card newCard = m_deck.DrawCard();
+        Card newCard = DrawCardWithSpecials();
         m_cardTable.AddCard(newCard);
     }
-    
+
     public void DealRiver()
     {
-        Card newCard = m_deck.DrawCard();
+        Card newCard = DrawCardWithSpecials();
         m_cardTable.AddCard(newCard);
     }
 
@@ -63,21 +65,21 @@ public class TexasHoldemInteractionManager
     {
         uint bestHandValue = uint.MinValue;
         List<int> bestHandIds = new List<int>();
-        
-        //Get Table Card string
+
+        // Get Table Card string
         string tableString = string.Empty;
         Card[] tableCards = m_cardTable.GetCards();
         tableString = tableCards.Aggregate(tableString, (current, t) => current + $"{t.ToString()} ");
-        string description = string.Empty;;
+        string description = string.Empty;
         for (int i = 0; i < m_cardHand.Length; i++)
         {
             string pocketString = m_cardHand[i].Cards.Aggregate(string.Empty, (current, t) => current + $"{t.ToString()} ");
-            pocketString.Remove(pocketString.Length - 1);
-            
+            pocketString = pocketString.Remove(pocketString.Length - 1);
+
             ulong handMask = Hand.ParseHand(tableString + pocketString);
             uint handValue = Hand.Evaluate(handMask);
 
-            if (handValue >= bestHandValue )
+            if (handValue >= bestHandValue)
             {
                 if (handValue != bestHandValue)
                 {
@@ -89,8 +91,24 @@ public class TexasHoldemInteractionManager
             }
         }
 
-        
         Debug.Log(description);
         return bestHandIds;
+    }
+
+    private Card DrawCardWithSpecials()
+    {
+        // 10% chance to draw a special card
+        if (UnityEngine.Random.value < 0.1f)
+        {
+            int specialType = UnityEngine.Random.Range(0, 3);
+            switch (specialType)
+            {
+                case 0: return m_cardData.GetRandomJokerCard();
+                case 1: return m_cardData.GetRandomTarotCard();
+                case 2: return m_cardData.GetRandomPlanetCard();
+            }
+        }
+
+        return m_deck.DrawCard();
     }
 }

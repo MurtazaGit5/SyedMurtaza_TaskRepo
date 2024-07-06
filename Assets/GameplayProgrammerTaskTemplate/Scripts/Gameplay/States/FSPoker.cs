@@ -28,14 +28,19 @@ public class FSPoker : FlowState
     public FSPoker(GameContext gameContext)
     {
         m_deck = new Deck();
-  
+
         m_uiManager = gameContext.UIManager;
-        m_texasHoldemInteractionManager = new TexasHoldemInteractionManager(m_deck, k_playerCount);
-        
+
+        // Load the CardDataObject
+        var cardDataObject = Resources.Load<CardDataObject>("Data/CardData");
+
+        // Pass the CardDataObject to the TexasHoldemInteractionManager constructor
+        m_texasHoldemInteractionManager = new TexasHoldemInteractionManager(m_deck, cardDataObject, k_playerCount);
+
         m_cardBacksData = Resources.Load<CardBacksDataObject>("Data/CardBackData");
         m_cardBack = new CardBack();
         m_cardBack.SetCardBack(m_cardBacksData.CardBack[0]);
-        
+
         m_currentPhase = PokerPhase.DealHands;
     }
 

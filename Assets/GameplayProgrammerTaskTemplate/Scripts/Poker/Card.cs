@@ -8,7 +8,7 @@ public struct Card : IEquatable<Card>
     private static int[] s_suitPrimes = { 43, 47, 53, 59 };
     public static char[] s_ranks = "23456789tjqka".ToCharArray();
     public static char[] s_suits = "shdc".ToCharArray();
-    
+
     public Sprite Sprite;
     public Rank Rank;
     public Suit Suit;
@@ -49,7 +49,7 @@ public struct Card : IEquatable<Card>
             case 'c': suit = Suit.Clubs; break;
             default: throw new ArgumentException("Card string suit not valid");
         }
-        
+
         return new Card
         {
             Rank = rank,
@@ -59,9 +59,9 @@ public struct Card : IEquatable<Card>
 
     public ulong GetId()
     {
-        return 1ul << (int) Rank * 4 + (int)Suit;
+        return 1ul << (int)Rank * 4 + (int)Suit;
     }
-    
+
     public bool Equals(Card other)
     {
         return Rank == other.Rank && Suit == other.Suit;
@@ -74,14 +74,32 @@ public struct Card : IEquatable<Card>
 
     public override int GetHashCode()
     {
-        return HashCode.Combine((int) Rank, (int) Suit);
+        return HashCode.Combine((int)Rank, (int)Suit);
     }
-    
-    public override string ToString()  
+
+    public override string ToString()
     {
         char[] ranks = "23456789tjqka".ToCharArray();
         char[] suits = { 's', 'h', 'd', 'c' };
 
         return ranks[(int)Rank].ToString() + suits[(int)Suit].ToString();
+    }
+
+    public static bool operator ==(Card card1, Card card2)
+    {
+        if (ReferenceEquals(card1, card2))
+        {
+            return true;
+        }
+        if (ReferenceEquals(card1, null) || ReferenceEquals(card2, null))
+        {
+            return false;
+        }
+        return card1.Equals(card2);
+    }
+
+    public static bool operator !=(Card card1, Card card2)
+    {
+        return !(card1 == card2);
     }
 }

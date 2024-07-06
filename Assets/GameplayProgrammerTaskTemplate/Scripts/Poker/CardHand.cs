@@ -1,18 +1,24 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 /// <summary>
 /// Data Struct for storing the cards contained with in a players hand. 
 /// </summary>
 public struct CardHand
 {
     public Card[] Cards;
+    private List<Card> specialCards;
 
     public CardHand(int cardsInHand)
     {
         Cards = new Card[cardsInHand];
+        specialCards = new List<Card>();
     }
 
     public CardHand(int cardsInHand, ulong bitMap)
     {
         Cards = new Card[cardsInHand];
+        specialCards = new List<Card>();
         Cards = BitMapToHand(bitMap, cardsInHand);
     }
 
@@ -52,6 +58,30 @@ public struct CardHand
 
         return bitmap;
     }
-    
-    
+
+    public void AddCard(Card card)
+    {
+        Array.Resize(ref Cards, Cards.Length + 1);
+        Cards[Cards.Length - 1] = card;
+    }
+
+    public void RemoveCard(Card card)
+    {
+        Cards = Cards.Where(c => c != card).ToArray();
+    }
+
+    public void AddSpecialCard(Card card)
+    {
+        specialCards.Add(card);
+    }
+
+    public void RemoveSpecialCard(Card card)
+    {
+        specialCards.Remove(card);
+    }
+
+    public List<Card> GetSpecialCards()
+    {
+        return specialCards;
+    }
 }
